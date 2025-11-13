@@ -10,14 +10,50 @@ def chat_with_fridge(ingredients):
 
     prompt = f"Crie uma receita criativa e prática usando: {ingredients}. Descreva o modo de preparo passo a passo e dê um nome divertido à receita."
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=400,
-        temperature=0.8,
-    )
+    # Try preferred model first, then fallback to a more broadly available model.
+    models_to_try = ["gpt-4o-mini", "gpt-3.5-turbo"]
+    last_exception = None
 
-    return response.choices[0].message.content
+    for model in models_to_try:
+        try:
+            response = openai.ChatCompletion.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=400,
+                temperature=0.8,
+            )
+
+            # The SDK may return different shapes; handle common cases.
+            try:
+                # Newer SDKs: response.choices[0].message.content
+                return response.choices[0].message.content
+            except Exception:
+                try:
+                    # Older/alternative shape: choices[0]["message"]["content"]
+                    return response.choices[0]["message"]["content"]
+                except Exception:
+                    try:
+                        # Fallback: choices[0].text
+                        return response.choices[0].text
+                    except Exception:
+                        return str(response)
+
+        except Exception as e:
+            # Log to container logs so we can inspect in HF Spaces UI.
+            print(f"OpenAI call failed for model={model}: {e}")
+            import traceback
+
+            traceback.print_exc()
+            last_exception = e
+            # try next model
+            continue
+
+    # If we reach here, all attempts failed.
+    print("All OpenAI model attempts failed.")
+    if last_exception:
+        print(repr(last_exception))
+
+    return "Erro ao gerar a receita. Verifique a configuração da chave OpenAI no Space ou tente novamente mais tarde."
 
 # UI moderna com Gradio
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
