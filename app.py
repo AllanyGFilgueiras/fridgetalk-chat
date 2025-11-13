@@ -1,8 +1,9 @@
 import gradio as gr
-import openai
+from openai import OpenAI
 import os
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client (reads OPENAI_API_KEY from env if provided)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def chat_with_fridge(ingredients):
     if not ingredients.strip():
@@ -16,7 +17,7 @@ def chat_with_fridge(ingredients):
 
     for model in models_to_try:
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=400,
