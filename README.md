@@ -1,17 +1,15 @@
----
-title: Fridgetalk Chat
-emoji: 💬
-colorFrom: yellow
-colorTo: purple
-sdk: gradio
-sdk_version: 5.42.0
-app_file: app.py
-pinned: false
-hf_oauth: true
-hf_oauth_scopes:
-- inference-api
-license: mit
-short_description: 'Smart recipe generator powered by GPT-4 and Gradio '
----
+# 🧊 FridgeTalk Chat
 
-An example chatbot using [Gradio](https://gradio.app), [`huggingface_hub`](https://huggingface.co/docs/huggingface_hub/v0.22.2/en/index), and the [Hugging Face Inference API](https://huggingface.co/docs/api-inference/index).
+Um chat inteligente que cria receitas automáticas com base nos ingredientes que você tem em casa.
+
+### 💡 Como funciona:
+
+1. Digite os ingredientes disponíveis.
+2. O modelo gera uma receita criativa, com nome e modo de preparo.
+3. Aproveite e compartilhe ideias!
+
+### ⚙️ Tecnologias:
+
+- Python
+- Gradio
+- OpenAI API
