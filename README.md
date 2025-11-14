@@ -7,26 +7,25 @@ sdk: gradio
 app_file: app.py
 pinned: false
 ---
----
 
 # 🧊 FridgeTalk Chat
 
-FridgeTalk sugere receitas práticas com base nos ingredientes que você tem disponível. O foco é simplicidade, clareza e uma experiência agradável para o usuário.
+> Assistente simples para sugerir receitas com base nos ingredientes da sua geladeira.
 
-Visão geral
-- Entrada: texto com ingredientes (ex.: ovos, tomate, queijo)
-- Saída: nome da receita e modo de preparo passo a passo
-- Comportamento: tenta usar um provedor de IA quando configurado; caso contrário, usa o modo demo local
+## Visão geral
+- **Entrada**: texto com ingredientes (ex.: ovos, tomate, queijo)
+- **Saída**: nome da receita + modo de preparo passo a passo
+- **Comportamento**: usa OpenAI quando configurado e faz fallback automático para o modo demo
 
-Recursos principais
-- 🎛️ Interface única com sugestões de ingredientes e dicas rápidas
-- 🔁 Fallback automático para modo demo quando a IA não está disponível
-- 🧪 Testes unitários básicos para validar fluxo demo e mensagens ao usuário
+## Recursos principais
+- 🎛️ Interface com sugestões rápidas de ingredientes e dicas embutidas
+- 🔁 Fallback inteligente para demo quando o provedor de IA não está acessível
+- 🧪 Testes unitários cobrindo mensagens e fluxo demo
 
-Imagem
+## Captura
 ![Screenshot](assets/demo.png)
 
-Como executar localmente
+## Como executar localmente
 ```bash
 git clone <seu-repo-url>
 cd fridgetalk-chat
@@ -37,45 +36,45 @@ python app.py
 ```
 Abra http://localhost:7860 no navegador.
 
-Executar testes
+### Executar testes
 ```bash
 python3 -m pytest -q
 ```
 
-Modo demo
-- Marque "Usar modo demo" na interface para gerar receitas locais sem necessidade de chaves.
-- Ou defina a variável de ambiente:
+## Modos de execução
+### Demo Mode
+- Marque **“Usar modo demo (sem IA)”** na interface, ou
+- Execute com a variável:
+  ```bash
+  export DEMO_MODE=1
+  python app.py
+  ```
 
-```bash
-export DEMO_MODE=1
-python app.py
-```
+### OpenAI (opcional)
+- Exporte `OPENAI_API_KEY` ou configure como Secret no Hugging Face Space.
+- O aplicativo entrega uma mensagem amigável quando não encontra a chave e volta ao demo automaticamente.
 
-Usando provedor de IA (opcional)
-- Para habilitar chamadas reais ao OpenAI, defina `OPENAI_API_KEY` como variável de ambiente ou adicione como Secret na Hugging Face Space.
-- O aplicativo faz fallback automático para o modo demo quando o provedor não está disponível.
+## Estrutura do repositório
+- `app.py` – aplicação Gradio com fallback e logging
+- `tests/` – testes unitários (pytest)
+- `assets/` – imagens do projeto
+- `.github/workflows/ci.yml` – workflow de testes
+- `requirements.txt` – dependências principais
+- `LICENSE` – MIT
 
-Estrutura do repositório
-- `app.py` — aplicação Gradio com fallback demo e mensagens de erro amigáveis
-- `requirements.txt` — dependências (Gradio, OpenAI, pytest)
-- `tests/` — testes unitários (pytest)
-- `assets/` — imagens e placeholders
-- `.github/workflows/ci.yml` — workflow básico de CI (testes)
-- `LICENSE` — MIT
+## Deploy na Hugging Face Space
+- O front matter no topo deste README já está pronto para Spaces (SDK Gradio + `app.py`).
+- Configure variáveis (`OPENAI_API_KEY`, etc.) em **Settings → Variables & secrets**.
+- Use `PRESENTATION.md` para gravar um GIF/MP4 curto e atualize `assets/demo.png` (ou adicione `assets/demo.gif`).
+- Em macOS com Python 3.14+, instale `libjpeg` (`brew install jpeg`) antes de `pip install -r requirements.txt` para evitar erros do Pillow.
 
-Deploy na Hugging Face Space
-- O front matter acima já está pronto para Spaces (SDK Gradio e `app.py`).
-- Adicione `OPENAI_API_KEY` e demais variáveis necessárias em **Settings → Variables & secrets**.
-- Use `PRESENTATION.md` como guia para gravar um GIF/MP4 curto e atualize `assets/demo.png` ou adicione um GIF otimizado se quiser animação.
-- Caso esteja em macOS com Python 3.14+, instale `libjpeg` (via `brew install jpeg`) antes de `pip install -r requirements.txt` para permitir a compilação do Pillow.
+## Boas práticas para apresentação
+- Use o modo demo para respostas instantâneas durante demonstrações.
+- Mostre a mudança de comportamento ao adicionar a chave OpenAI.
+- Mantenha o navegador focado na interface para destacar o chatbot.
 
-Boas práticas para apresentação
-- Ao apresentar, abra a Space ou rode localmente.
-- Use o modo demo para garantir resposta imediata.
-- Se for demonstrar a IA, mostre como a integração muda o comportamento ao adicionar `OPENAI_API_KEY`.
+## Contribuições
+Consulte `CONTRIBUTING.md` para orientação sobre issues, PRs e estilo de commits.
 
-Contribuições
-- Veja `CONTRIBUTING.md`.
-
-Licença
-- MIT — consulte `LICENSE`
+## Licença
+Distribuído sob a licença MIT. Veja `LICENSE` para detalhes.
