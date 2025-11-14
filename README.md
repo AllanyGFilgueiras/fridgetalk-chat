@@ -1,11 +1,3 @@
----
-title: "FridgeTalk Chat"
-emoji: "🧊"
-colorFrom: yellow
-colorTo: purple
-sdk: gradio
-app_file: app.py
----
 title: "FridgeTalk Chat"
 emoji: "🧊"
 colorFrom: yellow
@@ -24,19 +16,29 @@ Visão geral
 - Saída: nome da receita e modo de preparo passo a passo
 - Comportamento: tenta usar um provedor de IA quando configurado; caso contrário, usa o modo demo local
 
+Recursos principais
+- 🎛️ Interface única com sugestões de ingredientes e dicas rápidas
+- 🔁 Fallback automático para modo demo quando a IA não está disponível
+- 🧪 Testes unitários básicos para validar fluxo demo e mensagens ao usuário
+
 Imagem
 ![Screenshot](assets/demo.png)
 
 Como executar localmente
 ```bash
 git clone <seu-repo-url>
-cd fridge-talk
+cd fridgetalk-chat
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 Abra http://localhost:7860 no navegador.
+
+Executar testes
+```bash
+python3 -m pytest -q
+```
 
 Modo demo
 - Marque "Usar modo demo" na interface para gerar receitas locais sem necessidade de chaves.
@@ -58,6 +60,12 @@ Estrutura do repositório
 - `assets/` — imagens e placeholders
 - `.github/workflows/ci.yml` — workflow básico de CI (testes)
 - `LICENSE` — MIT
+
+Deploy na Hugging Face Space
+- O front matter acima já está pronto para Spaces (SDK Gradio e `app.py`).
+- Adicione `OPENAI_API_KEY` e demais variáveis necessárias em **Settings → Variables & secrets**.
+- Use `PRESENTATION.md` como guia para gravar um GIF/MP4 curto e atualize `assets/demo.png` ou adicione um GIF otimizado se quiser animação.
+- Caso esteja em macOS com Python 3.14+, instale `libjpeg` (via `brew install jpeg`) antes de `pip install -r requirements.txt` para permitir a compilação do Pillow.
 
 Boas práticas para apresentação
 - Ao apresentar, abra a Space ou rode localmente.
