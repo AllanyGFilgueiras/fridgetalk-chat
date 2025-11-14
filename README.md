@@ -24,8 +24,8 @@ Visão geral
 - Saída: nome da receita e modo de preparo passo a passo
 - Comportamento: tenta usar um provedor de IA quando configurado; caso contrário, usa o modo demo local
 
-Imagem (atualmente placeholder)
-![Screenshot placeholder](assets/screenshot-placeholder.svg)
+Imagem
+![Screenshot](assets/demo.png)
 
 Como executar localmente
 ```bash
