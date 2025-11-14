@@ -3,7 +3,11 @@ import os
 import random
 import typing
 
-import gradio as gr
+try:
+    import gradio as gr
+except ModuleNotFoundError:  # pragma: no cover - handled in build_interface
+    gr = None
+
 from openai import OpenAI
 
 
@@ -15,6 +19,12 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logger.setLevel(logging.INFO)
+
+EXAMPLE_INGREDIENTS = [
+    "ovos, tomate, queijo",
+    "macarrão, alho, azeite",
+    "frango desfiado, batata, cenoura",
+]
 
 
 def generate_demo_recipe(ingredients: str) -> str:
@@ -59,8 +69,8 @@ def generate_demo_recipe(ingredients: str) -> str:
 
     # Choose an example based on a hash of ingredients for variety
     seed = sum(ord(c) for c in (ingredients or ""))
-    random.seed(seed)
-    ex = random.choice(examples)
+    rng = random.Random(seed)
+    ex = rng.choice(examples)
 
     result = [f"### {ex['name']}", ""]
     result.append(f"Ingredientes sugeridos: {', '.join(ex['ingredients'])}")
@@ -153,36 +163,67 @@ def chat_with_fridge(ingredients: str, demo_override: typing.Optional[bool] = No
     )
 
 
-# UI com Gradio
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("## 🧊 FridgeTalk — Converse com sua geladeira e descubra receitas!")
-    gr.Markdown(
-        "Digite os ingredientes que você tem em casa e veja sugestões práticas. "
-        "Se o serviço de IA não estiver disponível, use o modo demo para ver exemplos." 
-    )
+def build_interface():
+    """Create the Gradio Blocks layout for the Hugging Face Space."""
+    if gr is None:
+        raise RuntimeError(
+            "Gradio não está instalado. Rode `pip install gradio` para usar a interface."
+        )
 
-    with gr.Row():
-        ingredients = gr.Textbox(label="Ingredientes disponíveis", placeholder="Ex: ovos, tomate, queijo, pão...", elem_id="ingredients")
-        demo_toggle = gr.Checkbox(label="Usar modo demo (sem IA)", value=False)
+    with gr.Blocks(theme=gr.themes.Soft()) as demo:
+        gr.Markdown("## 🧊 FridgeTalk — Converse com sua geladeira e descubra receitas!")
+        gr.Markdown(
+            "Digite os ingredientes que você tem em casa e veja sugestões práticas. "
+            "Se o serviço de IA não estiver disponível, use o modo demo para ver exemplos."
+        )
 
-    chat = gr.Chatbot(elem_id="chatbot", height=420)
-    with gr.Row():
-        send = gr.Button("Gerar receita 🍽️")
-        demo_button = gr.Button("Gerar receita de demonstração")
+        with gr.Row():
+            with gr.Column(scale=3):
+                ingredients = gr.Textbox(
+                    label="Ingredientes disponíveis",
+                    placeholder="Ex: ovos, tomate, queijo, pão...",
+                    elem_id="ingredients",
+                )
+                demo_toggle = gr.Checkbox(label="Usar modo demo (sem IA)", value=False)
+            with gr.Column(scale=2, min_width=180):
+                gr.Markdown("### Sugestões rápidas")
+                quick_pick = gr.Radio(
+                    label="Toque para preencher",
+                    choices=EXAMPLE_INGREDIENTS,
+                    value=EXAMPLE_INGREDIENTS[0],
+                )
+                quick_pick.change(lambda choice: choice, inputs=quick_pick, outputs=ingredients)
 
-    def respond(ingredients_text, chat_history, use_demo):
-        recipe = chat_with_fridge(ingredients_text, demo_override=use_demo)
-        # Append messages in a clear semantic way: user then assistant
-        chat_history = chat_history or []
-        chat_history.append(("Você", ingredients_text))
-        chat_history.append(("FridgeTalk", recipe))
-        # Clear the input textbox and return updated history
-        return "", chat_history
+        chat = gr.Chatbot(elem_id="chatbot", height=420, label="Conversas recentes")
+        with gr.Row():
+            send = gr.Button("Gerar receita 🍽️", variant="primary")
+            demo_button = gr.Button("Gerar receita de demonstração", variant="secondary")
 
-    send.click(respond, inputs=[ingredients, chat, demo_toggle], outputs=[ingredients, chat])
-    # demo_button forces demo mode
-    demo_button.click(lambda i, h: respond(i, h, True), inputs=[ingredients, chat], outputs=[ingredients, chat])
+        def respond(ingredients_text, chat_history, use_demo):
+            recipe = chat_with_fridge(ingredients_text, demo_override=use_demo)
+            chat_history = chat_history or []
+            if ingredients_text:
+                chat_history.append(("Você", ingredients_text))
+            chat_history.append(("FridgeTalk", recipe))
+            return "", chat_history
+
+        send.click(respond, inputs=[ingredients, chat, demo_toggle], outputs=[ingredients, chat])
+        demo_button.click(lambda i, h: respond(i, h, True), inputs=[ingredients, chat], outputs=[ingredients, chat])
+
+        with gr.Accordion("Dicas de apresentação", open=False):
+            gr.Markdown(
+                "- Use o modo demo para uma resposta instantânea.\n"
+                "- Adicione `OPENAI_API_KEY` para mostrar a IA em tempo real.\n"
+                "- Clique nas sugestões para preencher rapidamente."
+            )
+
+    return demo
+
+
+demo = build_interface() if gr is not None else None
 
 
 if __name__ == "__main__":
+    if demo is None:
+        raise SystemExit("Instale as dependências (gradio) para executar a interface.")
     demo.launch()
