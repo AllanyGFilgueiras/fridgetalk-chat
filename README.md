@@ -51,6 +51,17 @@ Key features
 - Friendly user-facing error messages and guidance for reviewers
 - Unit tests and CI
 
+Badges
+- CI (after pushing to GitHub): `![CI](https://github.com/<your-username>/<your-repo>/actions/workflows/ci.yml/badge.svg)`
+- License: `![License](https://img.shields.io/badge/license-MIT-green.svg)`
+
+Screenshot
+![Screenshot placeholder](assets/screenshot-placeholder.svg)
+
+Presentation notes for recruiters
+- To highlight this project in an interview, open the hosted Space and: 1) Toggle demo mode to show instant recipes; 2) Type a short list of ingredients and click "Gerar receita" — the UI will show a clean assistant response and an example fallback message if IA is unavailable.
+- Tip: Replace `assets/screenshot-placeholder.svg` with a real screenshot before sending the link to recruiters. To capture a screenshot on macOS: Cmd+Shift+4 → select area → save PNG → commit to `assets/`.
+
 Technologies
 - Python 3.10+
 - Gradio
