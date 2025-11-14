@@ -2,14 +2,26 @@ import gradio as gr
 from openai import OpenAI
 import os
 
-# Initialize OpenAI client (reads OPENAI_API_KEY from env if provided)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 def chat_with_fridge(ingredients):
     if not ingredients.strip():
         return "Por favor, digite os ingredientes que você tem. 🍅🥦"
 
     prompt = f"Crie uma receita criativa e prática usando: {ingredients}. Descreva o modo de preparo passo a passo e dê um nome divertido à receita."
+
+    # Initialize OpenAI client lazily so the app doesn't crash if the env var is missing.
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("OPENAI_API_KEY not set in environment.")
+        return "Erro: chave OpenAI não configurada no Space. Adicione OPENAI_API_KEY em Settings → Secrets."
+
+    try:
+        client = OpenAI(api_key=api_key)
+    except Exception as e:
+        print("Failed to initialize OpenAI client:", e)
+        import traceback
+
+        traceback.print_exc()
+        return "Erro ao inicializar cliente OpenAI. Verifique a chave e tente novamente."
 
     # Try preferred model first, then fallback to a more broadly available model.
     models_to_try = ["gpt-4o-mini", "gpt-3.5-turbo"]
